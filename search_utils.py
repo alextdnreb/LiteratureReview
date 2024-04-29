@@ -57,9 +57,12 @@ def find_conference_rank(venue: str):
     search_page = requests.get(search_page_url)
     if search_page.status_code == 200:
         bs = BeautifulSoup(search_page.content, "html.parser")
-        search_results = bs.find_all(string=re.compile(r"\b%s\b" % venue))
+        try:
+            search_results = bs.find_all(string=re.compile(r"\b%s\b" % venue))
+            if len(search_results) > 0:
+                return search_results[-1].find_next("td").find_next("td").string.strip()
+        except Exception as e:
+            print("No rank found for venue: ", venue)
+            print(e)
 
-        if len(search_results) > 0:
-            return search_results[-1].find_next("td").find_next("td").string.strip()
-    else:
-        return "Z"
+    return "Z"
